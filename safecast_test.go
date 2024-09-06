@@ -17,7 +17,27 @@ func TestConvert(t *testing.T) {
 		t.Errorf("unexpected value: %v", out)
 	}
 	inp = 129
-	out, err = safecast.Convert[int8](inp)
+	_, err = safecast.Convert[int8](inp)
+	t.Logf("Got err: %v", err)
+	if err == nil {
+		t.Errorf("expected error")
+	}
+	inp2 := int32(-42)
+	_, err = safecast.Convert[uint8](inp2)
+	t.Logf("Got err: %v", err)
+	if err == nil {
+		t.Errorf("expected error")
+	}
+	out, err = safecast.Convert[int8](inp2)
+	t.Logf("Out is %T: %v", out, out)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if out != -42 {
+		t.Errorf("unexpected value: %v", out)
+	}
+	inp2 = -129
+	_, err = safecast.Convert[uint8](inp2)
 	t.Logf("Got err: %v", err)
 	if err == nil {
 		t.Errorf("expected error")
