@@ -1,3 +1,4 @@
+// Implementation: me (@ldemailly), idea: ccoVeille - https://github.com/ccoVeille/go-safecast
 package safecast
 
 import (
