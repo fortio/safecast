@@ -21,10 +21,11 @@ func SameSign[T1, T2 Integer](a T1, b T2) bool {
 
 func Convert[IntOut Integer, IntIn Integer](orig IntIn) (converted IntOut, err error) {
 	converted = IntOut(orig)
-	if IntIn(converted) != orig {
-		err = ErrOutOfRange
-	}
 	if !SameSign(orig, converted) {
+		err = ErrOutOfRange
+		return
+	}
+	if IntIn(converted) != orig {
 		err = ErrOutOfRange
 	}
 	return
