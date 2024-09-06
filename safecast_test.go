@@ -42,4 +42,14 @@ func TestConvert(t *testing.T) {
 	if err == nil {
 		t.Errorf("expected error")
 	}
+	var a uint16 = 65535
+	x, err := safecast.Convert[int16](a)
+	if err == nil {
+		t.Errorf("expected error, %d %d", a, x)
+	}
+	b := int8(-1)
+	y, err := safecast.Convert[uint](b)
+	if err == nil {
+		t.Errorf("expected error, %d %d", b, y)
+	}
 }
