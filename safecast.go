@@ -5,8 +5,9 @@ import (
 	"errors"
 )
 
+// Same as golang.org/x/contraints.Integer but without importing the whole thing for 1 line.
 type Integer interface {
-	~int | ~uint | ~int8 | ~uint8 | ~int16 | ~uint16 | ~int32 | ~uint32 | ~int64 | ~uint64
+	~int | ~uint | ~int8 | ~uint8 | ~int16 | ~uint16 | ~int32 | ~uint32 | ~int64 | ~uint64 | ~uintptr
 }
 
 var ErrOutOfRange = errors.New("out of range")

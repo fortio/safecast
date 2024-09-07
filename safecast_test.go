@@ -52,4 +52,17 @@ func TestConvert(t *testing.T) {
 	if err == nil {
 		t.Errorf("expected error, %d %d", b, y)
 	}
+	up := uintptr(42)
+	b, err = safecast.Convert[int8](up)
+	if err != nil {
+		t.Errorf("unexpected err: %v", err)
+	}
+	if b != 42 {
+		t.Errorf("unexpected value: %v", b)
+	}
+	b = -1
+	_, err = safecast.Convert[uintptr](b)
+	if err == nil {
+		t.Errorf("expected err")
+	}
 }
