@@ -1,6 +1,7 @@
 package safecast_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/ldemailly/go-scratch/safecast"
@@ -84,4 +85,27 @@ func TestPanic(t *testing.T) {
 		}
 	}()
 	safecast.MustRound[uint8](float32(255.5))
+}
+
+func Example() {
+	var in int16 = 256
+	// will error out
+	out, err := safecast.Convert[uint8](in)
+	fmt.Println(out, err)
+	// will be fine
+	out = safecast.MustRound[uint8](255.4)
+	fmt.Println(out)
+	// Output: 0 out of range
+	// 255
+}
+
+func ExampleMustRound() {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("panic:", r)
+		}
+	}()
+	out := safecast.MustRound[int8](-128.6)
+	fmt.Println("not reached", out) // not reached
+	// Output: panic: safecast: out of range for -128.6 (float64) to int8
 }

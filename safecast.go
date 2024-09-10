@@ -1,5 +1,8 @@
-// Implementation: me (@ldemailly), idea: ccoVeille - https://github.com/ccoVeille/go-safecast
+// Package safecast allows you to safely cast between numeric types in Go and return errors (or panic when using the
+// Must* variants) when the cast would result in a loss of precision, range or sign.
 package safecast
+
+// Implementation: me (@ldemailly), idea: @ccoVeille - https://github.com/ccoVeille/go-safecast
 
 import (
 	"errors"
@@ -7,8 +10,8 @@ import (
 	"math"
 )
 
-// Same as golang.org/x/contraints.Integer but without importing the whole thing for 1 line.
 type Integer interface {
+	// Same as golang.org/x/contraints.Integer but without importing the whole thing for 1 line.
 	~int | ~uint | ~int8 | ~uint8 | ~int16 | ~uint16 | ~int32 | ~uint32 | ~int64 | ~uint64 | ~uintptr
 }
 
