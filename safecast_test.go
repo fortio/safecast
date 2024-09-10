@@ -65,4 +65,23 @@ func TestConvert(t *testing.T) {
 	if err == nil {
 		t.Errorf("expected err")
 	}
+	ub := safecast.MustTruncate[uint8](255.6)
+	if ub != 255 {
+		t.Errorf("unexpected value: %v", ub)
+	}
+}
+
+func TestPanic(t *testing.T) {
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Errorf("expected panic")
+		} else {
+			expected := "safecast: out of range for 255.5 (float32) to uint8"
+			if r != expected {
+				t.Errorf("unexpected panic: %q wanted %q", r, expected)
+			}
+		}
+	}()
+	safecast.MustRound[uint8](float32(255.5))
 }
