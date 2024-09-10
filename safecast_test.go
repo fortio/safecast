@@ -95,7 +95,11 @@ func Example() {
 	// will be fine
 	out = safecast.MustRound[uint8](255.4)
 	fmt.Println(out)
+	// Also fine
+	out = safecast.MustTruncate[uint8](255.6)
+	fmt.Println(out)
 	// Output: 0 out of range
+	// 255
 	// 255
 }
 
