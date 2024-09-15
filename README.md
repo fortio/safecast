@@ -9,5 +9,6 @@ Avoid accidental overflow of numbers during go type conversions (e.g instead of 
 Safecast allows you to safely convert between numeric types in Go and return errors (or panic when using the `Must*` variants) when the cast would result in a loss of precision, range or sign.
 
 See https://pkg.go.dev/fortio.org/safecast for docs and example.
+This is usable from any go with generics (1.18 or later) though our CI uses the latest go.
 
 Idea: @ccoVeille see https://github.com/ccoVeille/go-safecast for an different style API and implementation.
