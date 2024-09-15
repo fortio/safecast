@@ -7,6 +7,8 @@ import (
 	"fortio.org/safecast"
 )
 
+// TODO: steal the tests from https://github.com/ccoVeille/go-safecast
+
 func TestConvert(t *testing.T) {
 	var inp uint32 = 42
 	out, err := safecast.Convert[int8](inp)
@@ -70,9 +72,13 @@ func TestConvert(t *testing.T) {
 	if ub != 255 {
 		t.Errorf("unexpected value: %v", ub)
 	}
+	ub = safecast.MustConvert[uint8](int64(255)) // shouldn't panic
+	if ub != 255 {
+		t.Errorf("unexpected value: %v", ub)
+	}
 }
 
-func TestPanic(t *testing.T) {
+func TestPanicMustRound(t *testing.T) {
 	defer func() {
 		r := recover()
 		if r == nil {
@@ -85,6 +91,36 @@ func TestPanic(t *testing.T) {
 		}
 	}()
 	safecast.MustRound[uint8](float32(255.5))
+}
+
+func TestPanicMustTruncate(t *testing.T) {
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Errorf("expected panic")
+		} else {
+			expected := "safecast: out of range for -1.5 (float32) to uint8"
+			if r != expected {
+				t.Errorf("unexpected panic: %q wanted %q", r, expected)
+			}
+		}
+	}()
+	safecast.MustTruncate[uint8](float32(-1.5))
+}
+
+func TestPanicMustConvert(t *testing.T) {
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Errorf("expected panic")
+		} else {
+			expected := "safecast: out of range for 256 (int) to uint8"
+			if r != expected {
+				t.Errorf("unexpected panic: %q wanted %q", r, expected)
+			}
+		}
+	}()
+	safecast.MustConvert[uint8](256)
 }
 
 func Example() {
