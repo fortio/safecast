@@ -1,5 +1,5 @@
 # Same as full workflow (eg from fortio/multicurl) but without the goreleaser step
-name: "Shared library fortio workflows"
+name: "CI Checks"
 
 on:
     push:
