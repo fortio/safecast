@@ -3,6 +3,8 @@
 package safecast
 
 // Implementation: me (@ldemailly), idea: @ccoVeille - https://github.com/ccoVeille/go-safecast
+// Started https://github.com/ldemailly/go-scratch/commits/main/safecast/safecast.go
+// then moved here to fortio.org/safecast
 
 import (
 	"errors"
