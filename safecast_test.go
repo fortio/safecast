@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ldemailly/go-scratch/safecast"
+	"fortio.org/safecast"
 )
 
 func TestConvert(t *testing.T) {
