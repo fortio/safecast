@@ -11,6 +11,8 @@ jobs:
     call-gochecks:
         uses: fortio/workflows/.github/workflows/gochecks.yml@main
     call-codecov:
-        uses: fortio/workflows/.github/workflows/codecov.yml@main
+        uses: fortio/workflows/.github/workflows/codecov.yml@codecov_token
+        secrets:
+            CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     call-codeql:
         uses: fortio/workflows/.github/workflows/codeql-analysis.yml@main
