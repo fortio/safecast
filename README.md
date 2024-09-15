@@ -2,6 +2,7 @@
 
 [![Go Report Card](https://goreportcard.com/badge/fortio.org/safecast)](https://goreportcard.com/report/fortio.org/safecast)
 [![GoDoc](https://godoc.org/fortio.org/safecast?status.svg)](https://pkg.go.dev/fortio.org/safecast)
+[![codecov](https://codecov.io/gh/fortio/safecast/branch/main/graph/badge.svg)](https://codecov.io/gh/fortio/safecast)
 
 Avoid accidental overflow of numbers during go type conversions (e.g instead of `shorter := bigger.(int8)` type conversions use `shorter := safecast.MustConvert[int8](bigger)`.
 
