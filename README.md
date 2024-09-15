@@ -4,6 +4,7 @@
 [![GoDoc](https://godoc.org/fortio.org/safecast?status.svg)](https://pkg.go.dev/fortio.org/safecast)
 [![codecov](https://codecov.io/gh/fortio/safecast/branch/main/graph/badge.svg)](https://codecov.io/gh/fortio/safecast)
 [![Maintainability](https://api.codeclimate.com/v1/badges/bf83c496d49b169cd744/maintainability)](https://codeclimate.com/github/fortio/safecast/maintainability)
+[![CI Checks](https://github.com/fortio/safecast/actions/workflows/include.yml/badge.svg)](https://github.com/fortio/safecast/actions/workflows/include.yml)
 
 Avoid accidental overflow of numbers during go type conversions (e.g instead of `shorter := bigger.(int8)` type conversions use `shorter := safecast.MustConvert[int8](bigger)`.
 
