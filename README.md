@@ -13,4 +13,4 @@ Safecast allows you to safely convert between numeric types in Go and return err
 See https://pkg.go.dev/fortio.org/safecast for docs and example.
 This is usable from any go with generics (1.18 or later) though our CI uses the latest go.
 
-Idea: @ccoVeille see https://github.com/ccoVeille/go-safecast for an different style API and implementation.
+Credit for the idea (and a finding a bug in the first implementation) goes to [@ccoVeille](https://github.com/ccoVeille), Please see https://github.com/ccoVeille/go-safecast for an different style API and implementation to pick whichever fits your style best.
