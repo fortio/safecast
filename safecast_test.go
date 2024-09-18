@@ -9,6 +9,35 @@ import (
 
 // TODO: steal the tests from https://github.com/ccoVeille/go-safecast
 
+const all64bitsOne = ^uint64(0)
+
+func FindNumIntBits[T safecast.Float](t *testing.T) int {
+	var v T
+	for i := 0; i < 64; i++ {
+		bits := (all64bitsOne >> i)
+		v = T(bits)
+		if v != v-1 {
+			return 64 - i
+		}
+	}
+	panic("bug... didn't fine num bits")
+}
+
+func TestFloatBounds(t *testing.T) {
+	float32bits := FindNumIntBits[float32](t)
+	float64bits := FindNumIntBits[float64](t)
+	t.Logf("float32: %d bits", float32bits)
+	t.Logf("float64: %d bits", float64bits)
+	f32, err := safecast.Convert[float32](all64bitsOne)
+	if err == nil {
+		t.Errorf("expected error, got %d -> %.0f", all64bitsOne, f32)
+	}
+	f64, err := safecast.Convert[float64](all64bitsOne)
+	if err == nil {
+		t.Errorf("expected error, got %d -> %.0f", all64bitsOne, f64)
+	}
+}
+
 func TestConvert(t *testing.T) {
 	var inp uint32 = 42
 	out, err := safecast.Convert[int8](inp)
