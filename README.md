@@ -13,6 +13,6 @@ Safecast allows you to safely convert between numeric types in Go and return err
 See https://pkg.go.dev/fortio.org/safecast for docs and example.
 This is usable from any go with generics (1.18 or later) though our CI uses the latest go.
 
-`safecast` is about avoiding [gosec G115](https://github.com/securego/gosec#available-rules) class of overflow and loss of precision bugs, extended to float64/float32 issues.
+`safecast` is about avoiding [gosec G115](https://github.com/securego/gosec#available-rules) and [CWE-190: Integer Overflow or Wraparound](https://cwe.mitre.org/data/definitions/190.html) class of overflow and loss of precision bugs, extended to float64/float32 issues.
 
 Credit for the idea (and a finding a bug in the first implementation) goes to [@ccoVeille](https://github.com/ccoVeille), Please see https://github.com/ccoVeille/go-safecast for an different style API and implementation to pick whichever fits your style best.
