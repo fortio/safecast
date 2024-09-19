@@ -29,9 +29,18 @@ func FindNumIntBits[T safecast.Float](t *testing.T) int {
 	panic("bug... didn't fine num bits")
 }
 
+// https://en.wikipedia.org/wiki/Double-precision_floating-point_format
+const expectedFloat64Bits = 53
+
+// https://en.wikipedia.org/wiki/Single-precision_floating-point_format#IEEE_754_standard:_binary32
+const expectedFloat32Bits = 24
+
 func TestFloat32Bounds(t *testing.T) {
 	float32bits := FindNumIntBits[float32](t)
 	t.Logf("float32: %d bits", float32bits)
+	if float32bits != expectedFloat32Bits {
+		t.Errorf("unexpected number of bits: %d", float32bits)
+	}
 	float32int := uint64(1<<(float32bits) - 1) // 24 bits
 	for i := 0; i <= 64-float32bits; i++ {
 		t.Logf("float32int %b %d", float32int, float32int)
@@ -45,6 +54,9 @@ func TestFloat64Bounds(t *testing.T) {
 	float64bits := FindNumIntBits[float64](t)
 	t.Logf("float64: %d bits", float64bits)
 	float64int := uint64(1<<(float64bits) - 1) // 53 bits
+	if float64bits != expectedFloat64Bits {
+		t.Errorf("unexpected number of bits: %d", float64bits)
+	}
 	for i := 0; i <= 64-float64bits; i++ {
 		t.Logf("float64int %b %d", float64int, float64int)
 		f := safecast.MustConvert[float64](float64int)
