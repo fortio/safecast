@@ -53,6 +53,35 @@ func TestFloat64Bounds(t *testing.T) {
 	}
 }
 
+func TestNonIntegerFloat(t *testing.T) {
+	_, err := safecast.Convert[int](math.Pi)
+	if err == nil {
+		t.Errorf("expected error")
+	}
+	var truncPi float64 = math.Trunc(math.Pi)
+	i, err := safecast.Convert[int](truncPi)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if i != 3 {
+		t.Errorf("unexpected value: %v", i)
+	}
+	i, err = safecast.Truncate[int](math.Pi)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if i != 3 {
+		t.Errorf("unexpected value: %v", i)
+	}
+	i, err = safecast.Round[int](math.Phi)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if i != 2 {
+		t.Errorf("unexpected value: %v", i)
+	}
+}
+
 // MaxUint64 special case and also MaxInt64+1.
 func TestMaxInt64(t *testing.T) {
 	f32, err := safecast.Convert[float32](all64bitsOne)
