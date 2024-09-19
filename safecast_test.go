@@ -2,6 +2,7 @@ package safecast_test
 
 import (
 	"fmt"
+	"math"
 	"testing"
 
 	"fortio.org/safecast"
@@ -36,6 +37,15 @@ func TestFloatBounds(t *testing.T) {
 	if err == nil {
 		t.Errorf("expected error, got %d -> %.0f", all64bitsOne, f64)
 	}
+	minInt64p1 := int64(math.MinInt64) + 1 // not a power of 2
+	t.Logf("minInt64p1 %b %d", minInt64p1, minInt64p1)
+	_, err = safecast.Convert[float64](minInt64p1)
+	f64 = float64(minInt64p1)
+	int2 := int64(f64)
+	t.Logf("minInt64p1 -> %.0f %d", f64, int2)
+	if err == nil {
+		t.Errorf("expected error, got %d -> %.0f", minInt64p1, f64)
+	}
 }
 
 func TestConvert(t *testing.T) {
@@ -54,7 +64,7 @@ func TestConvert(t *testing.T) {
 	if err == nil {
 		t.Errorf("expected error")
 	}
-	inp2 := int32(-42)
+	inp2 := int32(-1)
 	_, err = safecast.Convert[uint8](inp2)
 	t.Logf("Got err: %v", err)
 	if err == nil {
@@ -65,7 +75,7 @@ func TestConvert(t *testing.T) {
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
-	if out != -42 {
+	if out != -1 {
 		t.Errorf("unexpected value: %v", out)
 	}
 	inp2 = -129

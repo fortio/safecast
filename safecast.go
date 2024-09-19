@@ -27,17 +27,17 @@ type Number interface {
 
 var ErrOutOfRange = errors.New("out of range")
 
-func Negative[T Number](t T) bool {
-	return t < 0
-}
-
-func SameSign[T1, T2 Number](a T1, b T2) bool {
-	return Negative(a) == Negative(b)
-}
+const all64bitsOne = ^uint64(0) // same as uint64(math.MaxUint64)
 
 func Convert[NumOut Number, NumIn Number](orig NumIn) (converted NumOut, err error) {
+	origPositive := orig > 0
+	// all bits set on uint64 is the only special case not detected by roundtrip (afaik).
+	if origPositive && (uint64(orig) == all64bitsOne) {
+		err = ErrOutOfRange
+		return
+	}
 	converted = NumOut(orig)
-	if !SameSign(orig, converted) {
+	if origPositive != (converted > 0) {
 		err = ErrOutOfRange
 		return
 	}
