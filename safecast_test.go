@@ -12,11 +12,16 @@ import (
 
 const all64bitsOne = ^uint64(0)
 
+// Interesting part is the "true" for the first line, which is why we have to change the
+// code in Convert to handle that 1 special case.
+// safecast_test.go:22: bits 64: 1111111111111111111111111111111111111111111111111111111111111111
+// : 18446744073709551615 -> float64 18446744073709551616 true.
 func FindNumIntBits[T safecast.Float](t *testing.T) int {
 	var v T
 	for i := 0; i < 64; i++ {
 		bits := (all64bitsOne >> i)
 		v = T(bits)
+		t.Logf("bits %02d: %b : %d -> %T %.0f %t", 64-i, bits, bits, v, v, uint64(v) == bits)
 		if v != v-1 {
 			return 64 - i
 		}
@@ -26,8 +31,8 @@ func FindNumIntBits[T safecast.Float](t *testing.T) int {
 
 func TestFloatBounds(t *testing.T) {
 	float32bits := FindNumIntBits[float32](t)
-	float64bits := FindNumIntBits[float64](t)
 	t.Logf("float32: %d bits", float32bits)
+	float64bits := FindNumIntBits[float64](t)
 	t.Logf("float64: %d bits", float64bits)
 	f32, err := safecast.Convert[float32](all64bitsOne)
 	if err == nil {
