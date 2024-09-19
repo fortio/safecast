@@ -58,7 +58,7 @@ func TestNonIntegerFloat(t *testing.T) {
 	if err == nil {
 		t.Errorf("expected error")
 	}
-	var truncPi float64 = math.Trunc(math.Pi)
+	truncPi := math.Trunc(math.Pi) // math.Trunc returns a float64
 	i, err := safecast.Convert[int](truncPi)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
