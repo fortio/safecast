@@ -147,46 +147,6 @@ func TestFloat32Int32Bounds(t *testing.T) {
 	}
 }
 
-func TestConvInteger(t *testing.T) {
-	var maxU64 uint64 = math.MaxUint64
-	_ = safecast.MustConv[uint64](maxU64) // shouldn't panic
-	var inp uint32 = 42
-	out, err := safecast.Conv[int8](inp)
-	t.Logf("Out is %T: %v", out, out)
-	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
-	if out != 42 {
-		t.Errorf("unexpected value: %v", out)
-	}
-	inp = 129
-	_, err = safecast.Conv[int8](inp)
-	t.Logf("Got err: %v", err)
-	if err == nil {
-		t.Errorf("expected error")
-	}
-	inp2 := int32(-1)
-	_, err = safecast.Conv[uint8](inp2)
-	t.Logf("Got err: %v", err)
-	if err == nil {
-		t.Errorf("expected error")
-	}
-	out, err = safecast.Conv[int8](inp2)
-	t.Logf("Out is %T: %v", out, out)
-	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
-	if out != -1 {
-		t.Errorf("unexpected value: %v", out)
-	}
-	inp2 = -129
-	_, err = safecast.Conv[uint8](inp2)
-	t.Logf("Got err: %v", err)
-	if err == nil {
-		t.Errorf("expected error")
-	}
-}
-
 func TestFloat32UInt32Bounds(t *testing.T) {
 	float32bits := FindNumIntBits[float32](t)
 	float32int32 := uint32(1<<(float32bits+1) - 1) // 25 bits is start of error range
@@ -267,6 +227,47 @@ func TestConvert(t *testing.T) {
 	ub = safecast.MustConvert[uint8](int64(255)) // shouldn't panic
 	if ub != 255 {
 		t.Errorf("unexpected value: %v", ub)
+	}
+}
+
+// a bit of copy pasta from the previous test.
+func TestConvInteger(t *testing.T) {
+	var maxU64 uint64 = math.MaxUint64
+	_ = safecast.MustConv[uint64](maxU64) // shouldn't panic
+	var inp uint32 = 42
+	out, err := safecast.Conv[int8](inp)
+	t.Logf("Out is %T: %v", out, out)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if out != 42 {
+		t.Errorf("unexpected value: %v", out)
+	}
+	inp = 129
+	_, err = safecast.Conv[int8](inp)
+	t.Logf("Got err: %v", err)
+	if err == nil {
+		t.Errorf("expected error")
+	}
+	inp2 := int32(-1)
+	_, err = safecast.Conv[uint8](inp2)
+	t.Logf("Got err: %v", err)
+	if err == nil {
+		t.Errorf("expected error")
+	}
+	out, err = safecast.Conv[int8](inp2)
+	t.Logf("Out is %T: %v", out, out)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if out != -1 {
+		t.Errorf("unexpected value: %v", out)
+	}
+	inp2 = -129
+	_, err = safecast.Conv[uint8](inp2)
+	t.Logf("Got err: %v", err)
+	if err == nil {
+		t.Errorf("expected error")
 	}
 }
 
