@@ -26,7 +26,7 @@ func FindNumIntBits[T safecast.Float](t *testing.T) int {
 			return 64 - i
 		}
 	}
-	panic("bug... didn't fine num bits")
+	panic("bug... didn't find num bits")
 }
 
 // https://en.wikipedia.org/wiki/Double-precision_floating-point_format
@@ -112,6 +112,29 @@ func TestMaxInt64(t *testing.T) {
 	t.Logf("minInt64p1 -> %.0f %d", f64, int2)
 	if err == nil {
 		t.Errorf("expected error, got %d -> %.0f", minInt64p1, f64)
+	}
+}
+
+func TestMaxInt32(t *testing.T) {
+	var inp int32 = math.MaxInt32
+	f32, err := safecast.Convert[float32](inp)
+	if err == nil {
+		t.Errorf("expected error, got %d (%x) -> %.0f", inp, inp, f32)
+	}
+}
+
+// Same as above but checks all the 25->31 bits.
+func TestFloat32Int32Bounds(t *testing.T) {
+	float32bits := FindNumIntBits[float32](t)
+	float32int32 := int32(1<<(float32bits+1) - 1) // 25 bits is start of error range
+	for i := 0; i < 31-float32bits; i++ {
+		t.Logf("float32int %b %d", float32int32, float32int32)
+		f, err := safecast.Convert[float32](float32int32)
+		t.Logf("float32int -> %.0f", f)
+		if err == nil {
+			t.Errorf("expected error for %d (%x %b) -> %.0f", float32int32, float32int32, float32int32, f)
+		}
+		float32int32 = float32int32<<1 | 1
 	}
 }
 
