@@ -48,7 +48,8 @@ func Convert[NumOut Number, NumIn Number](orig NumIn) (converted NumOut, err err
 		err = ErrOutOfRange
 		return
 	}
-	if NumIn(converted) != orig {
+	rt := NumIn(converted)
+	if rt != orig && ((rt == rt) || (orig == orig)) {
 		err = ErrOutOfRange
 	}
 	return
