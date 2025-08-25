@@ -138,6 +138,20 @@ func TestFloat32Int32Bounds(t *testing.T) {
 	}
 }
 
+func TestFloat32UInt32Bounds(t *testing.T) {
+	float32bits := FindNumIntBits[float32](t)
+	float32int32 := uint32(1<<(float32bits+1) - 1) // 25 bits is start of error range
+	for i := 0; i < 32-float32bits; i++ {
+		t.Logf("float32int %b %d", float32int32, float32int32)
+		f, err := safecast.Convert[float32](float32int32)
+		t.Logf("float32int -> %.0f", f)
+		if err == nil {
+			t.Errorf("expected error for %d (%x %b) -> %.0f", float32int32, float32int32, float32int32, f)
+		}
+		float32int32 = float32int32<<1 | 1
+	}
+}
+
 func TestConvert(t *testing.T) {
 	var inp uint32 = 42
 	out, err := safecast.Convert[int8](inp)
