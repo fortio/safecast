@@ -49,7 +49,7 @@ func Convert[NumOut Number, NumIn Number](orig NumIn) (converted NumOut, err err
 		return
 	}
 	rt := NumIn(converted)
-	if rt != orig && ((rt == rt) || (orig == orig)) {
+	if rt != orig && ((rt == rt) || (orig == orig)) { //nolint:gocritic // NaN check
 		err = ErrOutOfRange
 	}
 	return
