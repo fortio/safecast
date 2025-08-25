@@ -270,6 +270,23 @@ func TestConvert(t *testing.T) {
 	}
 }
 
+func TestNaNOk(t *testing.T) {
+	n32, err := safecast.Convert[float32](math.NaN())
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if n32 == n32 {
+		t.Errorf("unexpected NaN handling: %v", n32)
+	}
+	n64, err := safecast.Convert[float64](n32)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if n64 == n64 {
+		t.Errorf("unexpected NaN handling: %v", n64)
+	}
+}
+
 func TestPanicMustRound(t *testing.T) {
 	defer func() {
 		r := recover()
