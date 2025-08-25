@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"unsafe"
 )
 
 type Integer interface {
@@ -38,11 +39,33 @@ const all64bitsOne = ^uint64(0) // same as uint64(math.MaxUint64)
 // when converting to any float.
 func Convert[NumOut Number, NumIn Number](orig NumIn) (converted NumOut, err error) {
 	origPositive := orig >= 0
-	// all bits set on uint64 is the only special case not detected by roundtrip (afaik).
+	// All bits set on uint64 is one of 2 special cases not detected by roundtrip (afaik).
 	if origPositive && (uint64(orig) == all64bitsOne) {
 		err = ErrOutOfRange
 		return
 	}
+	converted = NumOut(orig)
+	if origPositive != (converted >= 0) {
+		err = ErrOutOfRange
+		return
+	}
+	if NumIn(converted) != orig {
+		err = ErrOutOfRange
+		return
+	}
+	// And this is the 2nd weird case, maxint32 conversion to float32.
+	if origPositive && (uint64(orig) == uint64(math.MaxInt32)) && unsafe.Sizeof(converted) == 4 {
+		err = ErrOutOfRange
+	}
+	return
+}
+
+// Conv is an integer only and simpler version of [Convert] without the
+// weird issue with round trip to floating point.
+// Unlike [Convert] it can be used for identity (same type in and out) even if that's
+// of dubious value.
+func Conv[NumOut Integer, NumIn Integer](orig NumIn) (converted NumOut, err error) {
+	origPositive := orig >= 0
 	converted = NumOut(orig)
 	if origPositive != (converted >= 0) {
 		err = ErrOutOfRange
@@ -56,7 +79,16 @@ func Convert[NumOut Number, NumIn Number](orig NumIn) (converted NumOut, err err
 
 // Same as Convert but panics if there is an error.
 func MustConvert[NumOut Number, NumIn Number](orig NumIn) NumOut {
-	converted, err := Convert[NumOut, NumIn](orig)
+	converted, err := Convert[NumOut](orig)
+	if err != nil {
+		doPanic(err, orig, converted)
+	}
+	return converted
+}
+
+// MustConv is as [Conv] but panics if there is an error.
+func MustConv[NumOut Integer, NumIn Integer](orig NumIn) NumOut {
+	converted, err := Conv[NumOut](orig)
 	if err != nil {
 		doPanic(err, orig, converted)
 	}

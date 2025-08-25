@@ -121,6 +121,15 @@ func TestMaxInt32(t *testing.T) {
 	if err == nil {
 		t.Errorf("expected error, got %d (%x) -> %.0f", inp, inp, f32)
 	}
+	// but should work to 64 bits types
+	_ = safecast.MustConvert[float64](inp)
+	_ = safecast.MustConvert[uint64](inp)
+	i64 := safecast.MustConvert[int64](inp)
+	// 64 bits variant of same maxint32 should also error out to 32 bits:
+	f32, err = safecast.Convert[float32](i64)
+	if err == nil {
+		t.Errorf("expected error, got %d (%x) -> %.0f", i64, i64, f32)
+	}
 }
 
 // Same as above but checks all the 25->31 bits.
@@ -135,6 +144,46 @@ func TestFloat32Int32Bounds(t *testing.T) {
 			t.Errorf("expected error for %d (%x %b) -> %.0f", float32int32, float32int32, float32int32, f)
 		}
 		float32int32 = float32int32<<1 | 1
+	}
+}
+
+func TestConvInteger(t *testing.T) {
+	var maxU64 uint64 = math.MaxUint64
+	_ = safecast.MustConv[uint64](maxU64) // shouldn't panic
+	var inp uint32 = 42
+	out, err := safecast.Conv[int8](inp)
+	t.Logf("Out is %T: %v", out, out)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if out != 42 {
+		t.Errorf("unexpected value: %v", out)
+	}
+	inp = 129
+	_, err = safecast.Conv[int8](inp)
+	t.Logf("Got err: %v", err)
+	if err == nil {
+		t.Errorf("expected error")
+	}
+	inp2 := int32(-1)
+	_, err = safecast.Conv[uint8](inp2)
+	t.Logf("Got err: %v", err)
+	if err == nil {
+		t.Errorf("expected error")
+	}
+	out, err = safecast.Conv[int8](inp2)
+	t.Logf("Out is %T: %v", out, out)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if out != -1 {
+		t.Errorf("unexpected value: %v", out)
+	}
+	inp2 = -129
+	_, err = safecast.Conv[uint8](inp2)
+	t.Logf("Got err: %v", err)
+	if err == nil {
+		t.Errorf("expected error")
 	}
 }
 
@@ -264,6 +313,21 @@ func TestPanicMustConvert(t *testing.T) {
 		}
 	}()
 	safecast.MustConvert[uint8](256)
+}
+
+func TestPanicMustConv(t *testing.T) {
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Errorf("expected panic")
+		} else {
+			expected := "safecast: out of range for 256 (int) to uint8"
+			if r != expected {
+				t.Errorf("unexpected panic: %q wanted %q", r, expected)
+			}
+		}
+	}()
+	safecast.MustConv[uint8](256)
 }
 
 func Example() {
