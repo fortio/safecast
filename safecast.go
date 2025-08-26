@@ -28,19 +28,21 @@ type Number interface {
 
 var ErrOutOfRange = errors.New("out of range")
 
-const all64bitsOne = ^uint64(0) // same as uint64(math.MaxUint64)
+const all63bits = uint64(math.MaxInt64)
 
 // Convert converts a number from one type to another,
 // returning an error if the conversion would result in a loss of precision,
 // range or sign (overflow). In other words if the converted number is not
 // equal to the original number.
+// Use [Conv] instead if both of your types are Integer.
 // Do not use for identity (same type in and out) but in particular this
-// will error for Convert[uint64](uint64(math.MaxUint64)) because it needs to
+// will error for Convert[uint64](uint64(math.MaxUint64)) or
+// Convert[int64](int64(math.MaxInt64)) because it needs to
 // when converting to any float.
 func Convert[NumOut Number, NumIn Number](orig NumIn) (converted NumOut, err error) {
 	origPositive := orig >= 0
-	// All bits set on uint64 is one of 2 special cases not detected by roundtrip (afaik).
-	if origPositive && (uint64(orig) == all64bitsOne) {
+	// All bits set on uint64 is one of 3 special cases not detected by roundtrip (afaik).
+	if origPositive && (uint64(orig)&all63bits == all63bits) {
 		err = ErrOutOfRange
 		return
 	}

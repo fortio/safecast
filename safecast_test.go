@@ -3,6 +3,8 @@ package safecast_test
 import (
 	"fmt"
 	"math"
+	"reflect"
+	"strconv"
 	"testing"
 
 	"fortio.org/safecast"
@@ -94,8 +96,8 @@ func TestNonIntegerFloat(t *testing.T) {
 	}
 }
 
-// MaxUint64 special case and also MaxInt64+1.
-func TestMaxInt64(t *testing.T) {
+// MaxUint64 special case and also MinInt64+1.
+func TestMaxUint64(t *testing.T) {
 	f32, err := safecast.Convert[float32](all64bitsOne)
 	if err == nil {
 		t.Errorf("expected error, got %d -> %.0f", all64bitsOne, f32)
@@ -112,6 +114,19 @@ func TestMaxInt64(t *testing.T) {
 	t.Logf("minInt64p1 -> %.0f %d", f64, int2)
 	if err == nil {
 		t.Errorf("expected error, got %d -> %.0f", minInt64p1, f64)
+	}
+}
+
+// TestMaxInt64 special test.
+func TestMaxInt64(t *testing.T) {
+	mi64 := int64(math.MaxInt64)
+	f32, err := safecast.Convert[float32](mi64)
+	if err == nil {
+		t.Errorf("expected error, got %d -> %.0f", mi64, f32)
+	}
+	f64, err := safecast.Convert[float64](mi64)
+	if err == nil {
+		t.Errorf("expected error, got %d -> %.0f", mi64, f64)
 	}
 }
 
@@ -269,6 +284,8 @@ func TestConvInteger(t *testing.T) {
 	if err == nil {
 		t.Errorf("expected error")
 	}
+	var mi int32 = math.MaxInt32
+	_ = safecast.MustConv[int32](mi) // self on maxint32 shouldn't panic.
 }
 
 func TestNaNOk(t *testing.T) {
@@ -351,7 +368,7 @@ func TestPanicMustConv(t *testing.T) {
 func Example() {
 	var in int16 = 256
 	// will error out
-	out, err := safecast.Convert[uint8](in)
+	out, err := safecast.Conv[uint8](in)
 	fmt.Println(out, err)
 	// will be fine
 	out = safecast.MustRound[uint8](255.4)
