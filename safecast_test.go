@@ -303,6 +303,42 @@ func TestNaNOk(t *testing.T) {
 	}
 }
 
+// Note this won't work is ~float because of the switch type.
+func TestPlusInfiniteOk(t *testing.T) {
+	inf64 := math.Inf(1)
+	inf32, err := safecast.Convert[float32](inf64)
+	if err != nil {
+		t.Errorf("unexpected 64->32 error %f -> %f: %v", inf64, inf32, err)
+	}
+	inf32 = float32(math.Inf(1))
+	outf64, err := safecast.Convert[float64](inf32)
+	if err != nil {
+		t.Errorf("unexpected 32->64 error %f -> %f: %v", inf32, outf64, err)
+	}
+}
+
+func TestPlusInfiniteToInt(t *testing.T) {
+	inf64 := math.Inf(1)
+	intInf, err := safecast.Convert[uint64](inf64)
+	if err == nil {
+		t.Errorf("expected inf to int error %f -> %d", inf64, intInf)
+	}
+}
+
+func TestMinusInfiniteOk(t *testing.T) {
+	inf64 := math.Inf(-1)
+	inf32, err := safecast.Convert[float32](inf64)
+	if err != nil {
+		t.Errorf("unexpected 64->32 error %f -> %f: %v", inf64, inf32, err)
+	}
+	t.Logf("inf32: %f", inf32)
+	inf32 = float32(math.Inf(-1))
+	outf64, err := safecast.Convert[float64](inf32)
+	if err != nil {
+		t.Errorf("unexpected 32->64 error %f -> %f: %v", inf32, outf64, err)
+	}
+}
+
 func TestPanicMustRound(t *testing.T) {
 	defer func() {
 		r := recover()

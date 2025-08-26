@@ -38,13 +38,21 @@ const all63bits = uint64(math.MaxInt64)
 // Do not use for identity (same type in and out) but in particular this
 // will error for Convert[uint64](uint64(math.MaxUint64)) or
 // Convert[int64](int64(math.MaxInt64)) because it needs to
-// when converting to any float.
+// when converting to any float. Note that +Inf will convert correctly (as in error
+// only if going to an integer type) from a float64/float32 and not a ~float (it will
+// error from say ~float32 to float64 while it shouldn't).
 func Convert[NumOut Number, NumIn Number](orig NumIn) (converted NumOut, err error) {
 	origPositive := orig >= 0
 	// All bits set on uint64 is one of 3 special cases not detected by roundtrip (afaik).
 	if origPositive && (uint64(orig)&all63bits == all63bits) {
-		err = ErrOutOfRange
-		return
+		// If we started from float we don't have to special case these bits (handles +Inf case too)
+		switch any(orig).(type) {
+		case float32, float64:
+			break
+		default:
+			err = ErrOutOfRange
+			return
+		}
 	}
 	converted = NumOut(orig)
 	if origPositive != (converted >= 0) {
