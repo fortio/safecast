@@ -3,8 +3,6 @@ package safecast_test
 import (
 	"fmt"
 	"math"
-	"reflect"
-	"strconv"
 	"testing"
 
 	"fortio.org/safecast"
