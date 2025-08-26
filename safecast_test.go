@@ -26,7 +26,7 @@ func FindNumIntBits[T safecast.Float](t *testing.T) int {
 			return 64 - i
 		}
 	}
-	panic("bug... didn't fine num bits")
+	panic("bug... didn't find num bits")
 }
 
 // https://en.wikipedia.org/wiki/Double-precision_floating-point_format
@@ -94,8 +94,8 @@ func TestNonIntegerFloat(t *testing.T) {
 	}
 }
 
-// MaxUint64 special case and also MaxInt64+1.
-func TestMaxInt64(t *testing.T) {
+// MaxUint64 special case and also MinInt64+1.
+func TestMaxUint64(t *testing.T) {
 	f32, err := safecast.Convert[float32](all64bitsOne)
 	if err == nil {
 		t.Errorf("expected error, got %d -> %.0f", all64bitsOne, f32)
@@ -112,6 +112,65 @@ func TestMaxInt64(t *testing.T) {
 	t.Logf("minInt64p1 -> %.0f %d", f64, int2)
 	if err == nil {
 		t.Errorf("expected error, got %d -> %.0f", minInt64p1, f64)
+	}
+}
+
+// TestMaxInt64 special test.
+func TestMaxInt64(t *testing.T) {
+	mi64 := int64(math.MaxInt64)
+	f32, err := safecast.Convert[float32](mi64)
+	if err == nil {
+		t.Errorf("expected error, got %d -> %.0f", mi64, f32)
+	}
+	f64, err := safecast.Convert[float64](mi64)
+	if err == nil {
+		t.Errorf("expected error, got %d -> %.0f", mi64, f64)
+	}
+}
+
+func TestMaxInt32(t *testing.T) {
+	var inp int32 = math.MaxInt32
+	f32, err := safecast.Convert[float32](inp)
+	if err == nil {
+		t.Errorf("expected error, got %d (%x) -> %.0f", inp, inp, f32)
+	}
+	// but should work to 64 bits types
+	_ = safecast.MustConvert[float64](inp)
+	_ = safecast.MustConvert[uint64](inp)
+	i64 := safecast.MustConvert[int64](inp)
+	// 64 bits variant of same maxint32 should also error out to 32 bits:
+	f32, err = safecast.Convert[float32](i64)
+	if err == nil {
+		t.Errorf("expected error, got %d (%x) -> %.0f", i64, i64, f32)
+	}
+}
+
+// Same as above but checks all the 25->31 bits.
+func TestFloat32Int32Bounds(t *testing.T) {
+	float32bits := FindNumIntBits[float32](t)
+	float32int32 := int32(1<<(float32bits+1) - 1) // 25 bits is start of error range
+	for i := 0; i < 31-float32bits; i++ {
+		t.Logf("float32int %b %d", float32int32, float32int32)
+		f, err := safecast.Convert[float32](float32int32)
+		t.Logf("float32int -> %.0f", f)
+		if err == nil {
+			t.Errorf("expected error for %d (%x %b) -> %.0f", float32int32, float32int32, float32int32, f)
+		}
+		float32int32 = float32int32<<1 | 1
+	}
+}
+
+func TestFloat32UInt32Bounds(t *testing.T) {
+	float32bits := FindNumIntBits[float32](t)
+	float32int32 := uint32(1<<(float32bits+1) - 1) // 25 bits is start of error range
+	for i := 0; i < 32-float32bits; i++ {
+		t.Logf("float32int %b %d", float32int32, float32int32)
+		f, err := safecast.Convert[float32](float32int32)
+		t.Logf("float32int -> %.0f", f)
+		if err == nil {
+			t.Errorf("expected error for %d (%x %b) -> %.0f", float32int32, float32int32, float32int32, f)
+		}
+		float32int32 = float32int32<<1 | 1
 	}
 }
 
@@ -184,6 +243,49 @@ func TestConvert(t *testing.T) {
 	}
 }
 
+// a bit of copy pasta from the previous test.
+func TestConvInteger(t *testing.T) {
+	var maxU64 uint64 = math.MaxUint64
+	_ = safecast.MustConv[uint64](maxU64) // shouldn't panic
+	var inp uint32 = 42
+	out, err := safecast.Conv[int8](inp)
+	t.Logf("Out is %T: %v", out, out)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if out != 42 {
+		t.Errorf("unexpected value: %v", out)
+	}
+	inp = 129
+	_, err = safecast.Conv[int8](inp)
+	t.Logf("Got err: %v", err)
+	if err == nil {
+		t.Errorf("expected error")
+	}
+	inp2 := int32(-1)
+	_, err = safecast.Conv[uint8](inp2)
+	t.Logf("Got err: %v", err)
+	if err == nil {
+		t.Errorf("expected error")
+	}
+	out, err = safecast.Conv[int8](inp2)
+	t.Logf("Out is %T: %v", out, out)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if out != -1 {
+		t.Errorf("unexpected value: %v", out)
+	}
+	inp2 = -129
+	_, err = safecast.Conv[uint8](inp2)
+	t.Logf("Got err: %v", err)
+	if err == nil {
+		t.Errorf("expected error")
+	}
+	var mi int32 = math.MaxInt32
+	_ = safecast.MustConv[int32](mi) // self on maxint32 shouldn't panic.
+}
+
 func TestNaNOk(t *testing.T) {
 	n32, err := safecast.Convert[float32](math.NaN())
 	if err != nil {
@@ -198,6 +300,42 @@ func TestNaNOk(t *testing.T) {
 	}
 	if n64 == n64 {
 		t.Errorf("unexpected NaN handling: %v", n64)
+	}
+}
+
+// Note this won't work is ~float because of the switch type.
+func TestPlusInfiniteOk(t *testing.T) {
+	inf64 := math.Inf(1)
+	inf32, err := safecast.Convert[float32](inf64)
+	if err != nil {
+		t.Errorf("unexpected 64->32 error %f -> %f: %v", inf64, inf32, err)
+	}
+	inf32 = float32(math.Inf(1))
+	outf64, err := safecast.Convert[float64](inf32)
+	if err != nil {
+		t.Errorf("unexpected 32->64 error %f -> %f: %v", inf32, outf64, err)
+	}
+}
+
+func TestPlusInfiniteToInt(t *testing.T) {
+	inf64 := math.Inf(1)
+	intInf, err := safecast.Convert[uint64](inf64)
+	if err == nil {
+		t.Errorf("expected inf to int error %f -> %d", inf64, intInf)
+	}
+}
+
+func TestMinusInfiniteOk(t *testing.T) {
+	inf64 := math.Inf(-1)
+	inf32, err := safecast.Convert[float32](inf64)
+	if err != nil {
+		t.Errorf("unexpected 64->32 error %f -> %f: %v", inf64, inf32, err)
+	}
+	t.Logf("inf32: %f", inf32)
+	inf32 = float32(math.Inf(-1))
+	outf64, err := safecast.Convert[float64](inf32)
+	if err != nil {
+		t.Errorf("unexpected 32->64 error %f -> %f: %v", inf32, outf64, err)
 	}
 }
 
@@ -246,10 +384,25 @@ func TestPanicMustConvert(t *testing.T) {
 	safecast.MustConvert[uint8](256)
 }
 
+func TestPanicMustConv(t *testing.T) {
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Errorf("expected panic")
+		} else {
+			expected := "safecast: out of range for 256 (int) to uint8"
+			if r != expected {
+				t.Errorf("unexpected panic: %q wanted %q", r, expected)
+			}
+		}
+	}()
+	safecast.MustConv[uint8](256)
+}
+
 func Example() {
 	var in int16 = 256
 	// will error out
-	out, err := safecast.Convert[uint8](in)
+	out, err := safecast.Conv[uint8](in)
 	fmt.Println(out, err)
 	// will be fine
 	out = safecast.MustRound[uint8](255.4)
