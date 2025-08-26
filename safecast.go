@@ -19,7 +19,7 @@ type Integer interface {
 }
 
 type Float interface {
-	~float32 | ~float64
+	~float32 | ~float64 // Consider removing the ~ because of +Inf issue.
 }
 
 type Number interface {
@@ -43,7 +43,7 @@ const all63bits = uint64(math.MaxInt64)
 // error from say ~float32 to float64 while it shouldn't).
 func Convert[NumOut Number, NumIn Number](orig NumIn) (converted NumOut, err error) {
 	origPositive := orig >= 0
-	// All bits set on uint64 is one of 3 special cases not detected by roundtrip (afaik).
+	// All bits set on uint64 or positive int63 are two of 3 special cases not detected by roundtrip (afaik).
 	if origPositive && (uint64(orig)&all63bits == all63bits) {
 		// If we started from float we don't have to special case these bits (handles +Inf case too)
 		switch any(orig).(type) {
@@ -63,7 +63,7 @@ func Convert[NumOut Number, NumIn Number](orig NumIn) (converted NumOut, err err
 		err = ErrOutOfRange
 		return
 	}
-	// And this is the 2nd weird case, maxint32 conversion to float32.
+	// And this is the 3rd weird case, maxint32 conversion to float32.
 	if origPositive && (uint64(orig) == uint64(math.MaxInt32)) && unsafe.Sizeof(converted) == 4 {
 		err = ErrOutOfRange
 	}
