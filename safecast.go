@@ -42,7 +42,7 @@ const all63bits = uint64(math.MaxInt64)
 // only if going to an integer type) from a float64/float32 and not a ~float (it will
 // error from say ~float32 to float64 while it shouldn't).
 func Convert[NumOut Number, NumIn Number](orig NumIn) (converted NumOut, err error) {
-	origPositive := orig >= 0
+	origPositive := (orig >= 0)
 	// All bits set on uint64 or positive int63 are two of 3 special cases not detected by roundtrip (afaik).
 	if origPositive && (uint64(orig)&all63bits == all63bits) {
 		// If we started from float we don't have to special case these bits (handles +Inf case too)
@@ -75,7 +75,7 @@ func Convert[NumOut Number, NumIn Number](orig NumIn) (converted NumOut, err err
 // Unlike [Convert] it can be used for identity (same type in and out) even if that's
 // of dubious value.
 func Conv[NumOut Integer, NumIn Integer](orig NumIn) (converted NumOut, err error) {
-	origPositive := orig >= 0
+	origPositive := (orig >= 0)
 	converted = NumOut(orig)
 	if origPositive != (converted >= 0) {
 		err = ErrOutOfRange
