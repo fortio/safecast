@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"reflect"
 	"unsafe"
 )
 
@@ -33,13 +34,12 @@ const (
 	all31bits = uint64(math.MaxInt32)
 )
 
-func isFloat[Num Number](f Num) bool {
-	switch any(f).(type) {
-	case float32, float64:
-		return true
-	default:
-		return false
+func isFloat[Num Number](f Num) (isFloat bool) {
+	switch reflect.TypeOf(f).Kind() { //nolint:exhaustive // only 2 we want to check
+	case reflect.Float32, reflect.Float64:
+		isFloat = true
 	}
+	return
 }
 
 // Convert converts a number from one type to another,
