@@ -303,9 +303,11 @@ func TestNaNOk(t *testing.T) {
 	}
 }
 
-// Note this won't work is ~float because of the switch type.
+type myFloat float64
+
+// Also tests ~float (#19).
 func TestPlusInfiniteOk(t *testing.T) {
-	inf64 := math.Inf(1)
+	inf64 := myFloat(math.Inf(1))
 	inf32, err := safecast.Convert[float32](inf64)
 	if err != nil {
 		t.Errorf("unexpected 64->32 error %f -> %f: %v", inf64, inf32, err)
