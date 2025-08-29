@@ -28,7 +28,19 @@ type Number interface {
 
 var ErrOutOfRange = errors.New("out of range")
 
-const all63bits = uint64(math.MaxInt64)
+const (
+	all63bits = uint64(math.MaxInt64)
+	all31bits = uint64(math.MaxInt32)
+)
+
+func isFloat[Num Number](f Num) bool {
+	switch any(f).(type) {
+	case float32, float64:
+		return true
+	default:
+		return false
+	}
+}
 
 // Convert converts a number from one type to another,
 // returning an error if the conversion would result in a loss of precision,
@@ -43,16 +55,10 @@ const all63bits = uint64(math.MaxInt64)
 // error from say ~float32 to float64 while it shouldn't).
 func Convert[NumOut Number, NumIn Number](orig NumIn) (converted NumOut, err error) {
 	origPositive := (orig >= 0)
-	// All bits set on uint64 or positive int63 are two of 3 special cases not detected by roundtrip (afaik).
-	if origPositive && (uint64(orig)&all63bits == all63bits) {
-		// If we started from float we don't have to special case these bits (handles +Inf case too)
-		switch any(orig).(type) {
-		case float32, float64:
-			break
-		default:
-			err = ErrOutOfRange
-			return
-		}
+	// All bits set on uint64 or positive int63 are two of 4 special cases not detected by roundtrip (afaik).
+	if origPositive && (uint64(orig)&all63bits == all63bits) && !isFloat(orig) {
+		err = ErrOutOfRange
+		return
 	}
 	converted = NumOut(orig)
 	if origPositive != (converted >= 0) {
@@ -63,8 +69,8 @@ func Convert[NumOut Number, NumIn Number](orig NumIn) (converted NumOut, err err
 		err = ErrOutOfRange
 		return
 	}
-	// And this is the 3rd weird case, maxint32 conversion to float32.
-	if origPositive && (uint64(orig) == uint64(math.MaxInt32)) && unsafe.Sizeof(converted) == 4 {
+	// And this are the other 2 weird case, maxint32 and maxuint32 (on armhf) conversion to float32.
+	if origPositive && (uint64(orig)&all31bits == all31bits) && unsafe.Sizeof(converted) == 4 && !isFloat(orig) {
 		err = ErrOutOfRange
 	}
 	return
