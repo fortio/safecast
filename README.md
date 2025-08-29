@@ -15,6 +15,6 @@ This is usable from any go with generics (1.18 or later) though our CI uses the 
 
 `safecast` is about avoiding [gosec G115](https://github.com/securego/gosec#available-rules) and [CWE-190: Integer Overflow or Wraparound](https://cwe.mitre.org/data/definitions/190.html) class of overflow and loss of precision bugs, extended to float64/float32 issues.
 
-Credit for the idea (and a finding a bug in the first implementation) goes to [@ccoVeille](https://github.com/ccoVeille), Please see https://github.com/ccoVeille/go-safecast for an different style API and implementation to pick whichever fits your style best.
+Credit for the idea (and a finding a bug in the first implementation) goes to [@ccoVeille](https://github.com/ccoVeille), Please see https://github.com/ccoVeille/go-safecast for an different style API and implementation to pick whichever fits your style best (though I believe this implementation and API is better both in simplicity of principle (round trip check) and performance and api surface).
 
 Please note that conversions from integer to float are suffering from CPU architecture differences and issues at the "edge" (max int) which are handled by Convert but you should use the new int only Conv/MustConv if possible, to avoid them.
