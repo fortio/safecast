@@ -112,13 +112,13 @@ func MustConv[NumOut Integer, NumIn Integer](orig NumIn) NumOut {
 }
 
 // Converts a float to an integer by truncating the fractional part.
-// Returns an error if the conversion would result in a loss of precision.
+// Returns an error if the conversion result is out of range for the target type.
 func Truncate[NumOut Number, NumIn Float](orig NumIn) (converted NumOut, err error) {
 	return Convert[NumOut](math.Trunc(float64(orig)))
 }
 
 // Converts a float to an integer by rounding to the nearest integer.
-// Returns an error if the conversion would result in a loss of precision.
+// Returns an error if the conversion result is out of range for the target type.
 func Round[NumOut Number, NumIn Float](orig NumIn) (converted NumOut, err error) {
 	return Convert[NumOut](math.Round(float64(orig)))
 }
